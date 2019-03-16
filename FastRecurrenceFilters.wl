@@ -30,7 +30,7 @@ _Real}, {a2, _Real}},
     Module[{z1 = 0., z2 = 0.}, 
      Table[With[{y = z1 + x[[i]] b0n}, z1 = z2 + x[[i]] b1n - y a1n; 
        z2 = x[[i]] b2n - y a2n; y], {i, Length[x]}]]], 
-   CompilationTarget -> compilationTarget, RuntimeOptions -> ro];
+   CompilationTarget -> compilationTarget, RuntimeOptions -> ro]];
 
 ClearAll[biquad2tUp2];
 With[{ro = runtimeOptions}, biquad2tUp2 = 
