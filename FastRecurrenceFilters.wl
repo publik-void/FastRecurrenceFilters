@@ -14,14 +14,14 @@ Begin["`Private`"]
 
 ClearAll[compilationTarget, runtimeOptions];
 compilationTarget = "C";
-runtimeOptions = {
+runtimeOptions = {"Speed",
   "CatchMachineOverflow" -> False,
-  "CatchMachineIntegerOverflow" -> False
-  "CompareWithTolerance" -> False
+  "CatchMachineIntegerOverflow" -> False,
+  "CompareWithTolerance" -> False,
   "EvaluateSymbolically" -> False};
 
 ClearAll[biquad2t];
-biquad2t = 
+With[{ro = runtimeOptions}, biquad2t = 
   Compile[{{x, _Real, 
      1}, {b0, _Real}, {b1, _Real}, {b2, _Real}, {a0, _Real}, {a1, \
 _Real}, {a2, _Real}}, 
@@ -30,10 +30,10 @@ _Real}, {a2, _Real}},
     Module[{z1 = 0., z2 = 0.}, 
      Table[With[{y = z1 + x[[i]] b0n}, z1 = z2 + x[[i]] b1n - y a1n; 
        z2 = x[[i]] b2n - y a2n; y], {i, Length[x]}]]], 
-   CompilationTarget -> compilationTarget, RuntimeOptions -> runtimeOptions];
+   CompilationTarget -> compilationTarget, RuntimeOptions -> ro];
 
 ClearAll[biquad2tUp2];
-biquad2tUp2 = 
+With[{ro = runtimeOptions}, biquad2tUp2 = 
   Compile[{{x0, _Real, 
      1}, {b0, _Real}, {b1, _Real}, {b2, _Real}, {a0, _Real}, {a1, \
 _Real}, {a2, _Real}}, 
@@ -44,10 +44,10 @@ _Real}, {a2, _Real}},
          With[{yi1 = xi + xi + yi0 a1n + z1 a2n}, 
           z0 = xi + yi0 a2n + yi1 a1n; z1 = yi1; 
           If[j == 1, yi0, yi1]]]], {j, 2}, {i, Length[x0]}]]], 
-   CompilationTarget -> compilationTarget, RuntimeOptions -> runtimeOptions];
+   CompilationTarget -> compilationTarget, RuntimeOptions -> ro]];
 
 ClearAll[biquad2tDown2];
-biquad2Down2 = 
+With[{ro = runtimeOptions}, biquad2Down2 = 
   Compile[{{x0, _Real, 1}, {x1, _Real, 
      1}, {b0, _Real}, {b1, _Real}, {b2, _Real}, {a0, _Real}, {a1, \
 _Real}, {a2, _Real}}, 
@@ -58,10 +58,10 @@ _Real}, {a2, _Real}},
         With[{z1i = x1i - (z0i a1n + z1 a2n)}, 
          With[{yi = z0i + z0i + z1i + z1}, z0 = z0i; z1 = z1i; 
           yi a]]]], {i, Length[x0]}]]], CompilationTarget -> compilationTarget,
-   RuntimeOptions -> runtimeOptions];
+   RuntimeOptions -> ro]];
 
 ClearAll[biquad2tr];
-biquad2tr =
+With[{ro = runtimeOptions}, biquad2tr =
   Compile[{{x, _Real,
      1}, {b0, _Real}, {b1, _Real}, {b2, _Real}, {a0, _Real}, {a1, \
 _Real}, {a2, _Real}},
@@ -70,7 +70,7 @@ _Real}, {a2, _Real}},
     Module[{z1 = 0., z2 = 0.},
      Table[With[{y = z1 + x[[i]] b0n}, z1 = z2 + x[[i]] b1n - y a1n;
        z2 = x[[i]] b2n - y a2n; y], {i, Length[x], 1, -1}]]],
-   CompilationTarget -> compilationTarget, RuntimeOptions -> runtimeOptions];
+   CompilationTarget -> compilationTarget, RuntimeOptions -> ro]];
 
 FastRecurrenceFilter::noimpl =
   "No matching implementation found for coefficients `1` and ratio `2`, falling\
