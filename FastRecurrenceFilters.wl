@@ -12,6 +12,14 @@ BiquadDown2::usage="2x downsampling biquad implementation."
 
 Begin["`Private`"]
 
+ClearAll[compilationTarget, runtimeOptions];
+compilationTarget = "C";
+runtimeOptions = {
+  "CatchMachineOverflow" -> False,
+  "CatchMachineIntegerOverflow" -> False
+  "CompareWithTolerance" -> False
+  "EvaluateSymbolically" -> False};
+
 ClearAll[biquad2t];
 biquad2t = 
   Compile[{{x, _Real, 
@@ -22,7 +30,7 @@ _Real}, {a2, _Real}},
     Module[{z1 = 0., z2 = 0.}, 
      Table[With[{y = z1 + x[[i]] b0n}, z1 = z2 + x[[i]] b1n - y a1n; 
        z2 = x[[i]] b2n - y a2n; y], {i, Length[x]}]]], 
-   CompilationTarget -> "C", RuntimeOptions -> "Speed"];
+   CompilationTarget -> compilationTarget, RuntimeOptions -> runtimeOptions];
 
 ClearAll[biquad2tUp2];
 biquad2tUp2 = 
@@ -36,7 +44,7 @@ _Real}, {a2, _Real}},
          With[{yi1 = xi + xi + yi0 a1n + z1 a2n}, 
           z0 = xi + yi0 a2n + yi1 a1n; z1 = yi1; 
           If[j == 1, yi0, yi1]]]], {j, 2}, {i, Length[x0]}]]], 
-   CompilationTarget -> "C", RuntimeOptions -> "Speed"];
+   CompilationTarget -> compilationTarget, RuntimeOptions -> runtimeOptions];
 
 ClearAll[biquad2tDown2];
 biquad2Down2 = 
@@ -49,8 +57,8 @@ _Real}, {a2, _Real}},
        With[{z0i = x0i - (z1 a1n + z0 a2n)}, 
         With[{z1i = x1i - (z0i a1n + z1 a2n)}, 
          With[{yi = z0i + z0i + z1i + z1}, z0 = z0i; z1 = z1i; 
-          yi a]]]], {i, Length[x0]}]]], CompilationTarget -> "C", 
-   RuntimeOptions -> "Speed"];
+          yi a]]]], {i, Length[x0]}]]], CompilationTarget -> compilationTarget,
+   RuntimeOptions -> runtimeOptions];
 
 ClearAll[biquad2tr];
 biquad2tr =
@@ -62,7 +70,7 @@ _Real}, {a2, _Real}},
     Module[{z1 = 0., z2 = 0.},
      Table[With[{y = z1 + x[[i]] b0n}, z1 = z2 + x[[i]] b1n - y a1n;
        z2 = x[[i]] b2n - y a2n; y], {i, Length[x], 1, -1}]]],
-   CompilationTarget -> "C", RuntimeOptions -> "Speed"];
+   CompilationTarget -> compilationTarget, RuntimeOptions -> runtimeOptions];
 
 FastRecurrenceFilter::noimpl =
   "No matching implementation found for coefficients `1` and ratio `2`, falling\
