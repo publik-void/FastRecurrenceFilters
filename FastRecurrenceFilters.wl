@@ -5,6 +5,7 @@ BeginPackage["FastRecurrenceFilters`"]
 ClearAll[FastRecurrenceFilter, Biquad, BiquadReverse, BiquadUp2, BiquadDown2];
 FastRecurrenceFilter::usage="\!\(\*RowBox[{\"FastRecurrenceFilter\"}]\) is a \
 compiled implementation of some numerical recurrence filters."
+Bilin::usage="Bilin implementation."
 Biquad::usage="Biquad implementation."
 BiquadReverse::usage="Biquad implementation with reversed output."
 BiquadUp2::usage="2x upsampling biquad implementation."
@@ -19,6 +20,15 @@ runtimeOptions = {"Speed",
   "CatchMachineIntegerOverflow" -> False,
   "CompareWithTolerance" -> False,
   "EvaluateSymbolically" -> False};
+
+ClearAll[bilin2];
+With[{ro = runtimeOptions}, bilin2 =
+  Compile[{{x, _Real, 1}, {b0, _Real}, {b1, _Real}, {a0, _Real}, {a1, _Real}},
+   With[{b0n = b0/a0, b1n = b1/a0, a1n = a1/a0},
+    Module[{z = 0.},
+      Table[With[{xi = x[[i]]}, With[{zi = xi - z a1n},
+        With[{y = zi b0n + z b1n}, z = zi; y]]], {i, Length[x]}]]],
+   CompilationTarget -> compilationTarget, RuntimeOptions -> ro]];
 
 ClearAll[biquad2t];
 With[{ro = runtimeOptions}, biquad2t = 
@@ -89,6 +99,8 @@ fastRecurrenceFilter[c_, x_, r_:1] := With[{
     ratio_/;ratio < 1, 
       Downsample[RecurrenceFilter[{a, b}, Catenate[Transpose@x]], 1/r, 1/r]]
   ];
+Bilin[{{a0_, a1_}, {b0_, b1_}}, x_] :=
+  bilin2[x, b0, b1, a0, a1];
 (*fastRecurrenceFilter[{{a0_, a1_, a2_}, {b0_, b1_, b2_}}, x_, 1] :=
   biquad2t[x, b0, b1, b2, a0, a1, a2];*)
 Biquad[{{a0_, a1_, a2_}, {b0_, b1_, b2_}}, x_] :=
